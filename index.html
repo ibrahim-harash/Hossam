@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فواكه القزازين | الروابط الرسمية</title>
+    <!-- تحميل مسبق للصورة لتظهر فوراً -->
+    <link rel="preload" as="image" href="hossam.jpg">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
     <style>
         :root {
             --bg-dark: #0b0f19;
@@ -51,12 +53,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.7s ease, visibility 0.7s ease;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
         #welcome-screen.fade-out {
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
         }
 
         .welcome-logo {
@@ -68,6 +71,7 @@
             box-shadow: 0 0 35px rgba(245, 158, 11, 0.45);
             margin-bottom: 18px;
             animation: pulseGlow 2s infinite alternate;
+            background: #1e293b;
         }
 
         .welcome-title {
@@ -102,7 +106,7 @@
             background-size: 200% 100%;
             border-radius: 999px;
             box-shadow: 0 0 12px rgba(251, 191, 36, 0.8);
-            animation: fillBar 2.2s cubic-bezier(0.4, 0, 0.2, 1) forwards, shimmer 1.5s linear infinite;
+            animation: fillBar 2.4s cubic-bezier(0.4, 0, 0.2, 1) forwards, shimmer 1.5s linear infinite;
         }
 
         @keyframes fillBar {
@@ -143,6 +147,7 @@
             display: block;
             border: 3px solid #fbbf24;
             box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
+            background: #1e293b;
         }
 
         .brand-title {
@@ -409,7 +414,7 @@
 
     <!-- شاشة البداية الترحيبية -->
     <div id="welcome-screen">
-        <img src="hossam.jpg" alt="شعار فواكه القزازين" class="welcome-logo">
+        <img src="hossam.jpg" alt="شعار فواكه القزازين" class="welcome-logo" fetchpriority="high" decoding="async">
         <div class="welcome-title">فواكه القزازين</div>
         <div class="welcome-sub">المنصة الرسمية للروابط والتواصل</div>
         <div class="loader-track">
@@ -419,7 +424,7 @@
 
     <!-- المحتوى الرئيسي -->
     <div class="container">
-        <img src="hossam.jpg" alt="شعار فواكه القزازين" class="brand-logo">
+        <img src="hossam.jpg" alt="شعار فواكه القزازين" class="brand-logo" decoding="async">
         <h1 class="brand-title">فواكه القزازين</h1>
         <p class="brand-subtitle">المنصة الرسمية للتواصل والدفع الإلكتروني</p>
 
@@ -506,24 +511,33 @@
     </div>
 
     <script>
-        // إخفاء شاشة البداية بعد اكتمال شريط التحميل
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                const welcome = document.getElementById('welcome-screen');
-                welcome.classList.add('fade-out');
-                setTimeout(() => welcome.remove(), 750);
-            }, 2200);
+        // بدء العداد فوراً دون انتظار الملفات الخارجية (3 ثوانٍ كحد أقصى)
+        function hideWelcomeScreen() {
+            const welcome = document.getElementById('welcome-screen');
+            if (!welcome || welcome.classList.contains('fade-out')) return;
+            welcome.classList.add('fade-out');
+            setTimeout(() => welcome.remove(), 550);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(hideWelcomeScreen, 2500);
         });
+        // صمام أمان إضافي لضمان عدم تجاوز 3 ثوانٍ بأي حال
+        setTimeout(hideWelcomeScreen, 3000);
 
         const shamCashId = "3fe5292fdf3d5ff36cff240b871ef8b3";
 
-        const qr = new QRCode(document.getElementById("qrcodeContainer"), {
-            text: shamCashId,
-            width: 210,
-            height: 210,
-            colorDark : "#364f7c",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof QRCode !== 'undefined') {
+                new QRCode(document.getElementById("qrcodeContainer"), {
+                    text: shamCashId,
+                    width: 210,
+                    height: 210,
+                    colorDark : "#364f7c",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
         });
 
         function copyShamCash() {
@@ -541,6 +555,17 @@
         }
 
         function openQrModal() {
+            const container = document.getElementById("qrcodeContainer");
+            if (!container.hasChildNodes() && typeof QRCode !== 'undefined') {
+                new QRCode(container, {
+                    text: shamCashId,
+                    width: 210,
+                    height: 210,
+                    colorDark : "#364f7c",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }
             document.getElementById('qrModal').classList.add('active');
         }
 
